@@ -363,7 +363,9 @@ https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html
 但是在計算的所有 features中，大多數都不相關。
 
 例如下圖，第一行的兩個features都是對的:
+
 ![](https://docs.opencv.org/3.4/haar.png)
+
 第一個特徵似乎著眼於眼睛的區域通常比鼻子和臉頰的區域更暗的屬性。
 
 第二個功能取決於眼睛比鼻子的鼻樑更黑的屬性。
@@ -374,7 +376,7 @@ https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html
 
 一定會有會有錯誤或分類錯誤，我們選擇**錯誤率最低的特徵，意味著它們是對人臉和非人臉圖像進行最準確分類的特徵。**（此過程不簡單，在開始時，每個圖像的權重均相等，在每次分類後，錯誤分類的圖像的權重都會增加，然後重複執行，計算新的錯誤率。還要計算新的權重。繼續進行此過程，直到達到所需的精度或錯誤率或找到所需的features數量為止 --> gradient descend)
 
-最終分類器是這些弱分類器(weak classifiers)的weighted sum。
+最終分類器是這些弱分類器(weak classifiers)的weighted sum。--> Boosting
 
 之所以稱其為weak classifiers是因為它本身無法對圖像進行分類，而是與其他圖像一起構成了強大的分類器。
 
@@ -387,6 +389,40 @@ https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html
 因為圖像中大多數圖像是非臉部區域。因此必須先有一個方法來檢查wimdow是否不是face region，如果不是就直接捨棄，這樣就不用跑6000次。
 
 paper位置: https://link.springer.com/content/pdf/10.1023/B:VISI.0000013087.49260.fb.pdf
+
+### Boosting簡介
+
+Boosting演算法是一種通過多次學習來提升演算法精度的方法，它採用的是綜合的原則使得演算法的效率明顯改善，是一種**將弱分類器提升為強分類器的方法**。
+
+通俗點講，就是“三個臭皮匠賽過諸葛亮”，臭皮匠就好比弱分類器，綜合起來就是一個強分類器。
+
+#### Boosting演算法是一種整合學習方案。何謂整合學習？
+
+在理解整合學習之前，我們先介紹傳統的學習方法，就是通過單個分類器來做決策，例如Naive Bayes Classifier，SVM，人工神經網路等。
+
+整合學習方法卻是需要多個分類器來投票進行最終的決策。好比領導開會，說：“贊成的請舉手”，每個決策者就好比一個弱分類器進行投票，如果紛紛舉手，結果自然沒有什麼懸念，這對於決策層而言，是最喜歡看到的，直接通過。
+
+![[第16天]AdaBoost元算法](https://i.ytimg.com/vi/BoGNyWW9-mE/maxresdefault.jpg)
+
+#### 說了這麼久的弱分類器，到底什麼是弱分類器？
+
+先說弱學習演算法吧。它通常是對一定分佈的訓練樣本給出的假設(給出假設的準確率僅僅強於隨機猜測）。它的思想起源於Valiant提出的計算學習理論一PAC (Probably Approximately Correct) 學習模型。
+
+在Valiant的PAC模型中,一個效能僅比隨機猜測稍好的弱學習演算法是否能被提升為一個具有任意精度的強學習演算法呢?這個問題困擾著很多研究機器學習的研究者，而且很長一段時間都沒有一個切實可行的辦法來實現這個理想。終於功夫不負有心人，Schapire先是在1990年證明了，如果將多個PAC分類器整合在一起,它將具有PAC強分類器的泛化能力，然後在1996年提出一個有效的演算法來驗證，它就是叫**AdaBoost（Adaptive Boosting）**
+
+### AdaBoost
+AdaBoost由Yoav Freund和Robert Schapire提出。
+
+它的自適應在於：**前一個基本分類器分錯的樣本會得到加強，加權後的全體樣本再次被用來訓練下一個基本分類器。同時，在每一輪中加入一個新的弱分類器，直到達到某個預定的足夠小的錯誤率或達到預先指定的最大疊代次數。**
+
+![Figure 5 - uploaded by Brendan Marsh](https://www.researchgate.net/profile/Brendan-Marsh-2/publication/306054843/figure/fig3/AS:393884896120846@1470920885933/Training-of-an-AdaBoost-classifier-The-first-classifier-trains-on-unweighted-data-then.png)
+
+#### Adaboost特性：
+1. 把決策樹的準確率大大提高，可以與 SVM 媲美。
+2. 速度快，且基本不用調參數。
+3. 幾乎不 Overfitting。
+
+from: https://medium.com/@houyitong/adaboost%E4%BB%8B%E7%B4%B9-%E4%B8%8A-%E6%BC%94%E7%AE%97%E6%B3%95%E4%BB%8B%E7%B4%B9-894fe049ad76
 
 
 ```python
